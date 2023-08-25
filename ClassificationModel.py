@@ -47,15 +47,9 @@ class CNNModel(nn.Module):
             nn.Linear(128, 64),
             nn.ReLU(inplace=True),
         )
-        # self.fc_layers = nn.Sequential(
-        #     nn.Linear(32 * (353 // 4) * (353 // 4), 128),
-        #     nn.ReLU(inplace=True),
-        #     nn.Linear(128, 64),
-        #     nn.ReLU(inplace=True),
-        # )
 
         # Additional outputs
-        self.fc_hand_presence = nn.Linear(64, 1)
+        self.fc_posture = nn.Linear(64, 1)
 
         self.relu = nn.ReLU()
 
@@ -67,7 +61,7 @@ class CNNModel(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.relu(self.fc_layers(x))
 
-        return self.fc_hand_presence(x)  # out_hand_presence
+        return self.fc_posture(x)  # out_hand_presence
 
     def initialize_weights(self):
         for layer in self.modules():
@@ -86,7 +80,6 @@ class CustomDataset(Dataset):
         self.labels_dict = {}  # Dictionary to store (session_id, image_id) to label mapping
 
         for label_file in label_files:
-            session_id = int(label_file.split("_")[-1].split(".")[0])
             with open(label_file, 'r') as file:
                 image_id = 0  # Initialize the image_id for the current session
                 for line in file:
@@ -108,9 +101,9 @@ class CustomDataset(Dataset):
         image_name = os.path.basename(image_path)
         image = Image.open(image_path).convert('RGB')
 
-        # Convert the PIL image to a NumPy array and apply cropping
+        # # Convert the PIL image to a NumPy array and apply cropping
         image = np.array(image)
-        image = image[93:446, 132:485, :]
+        # image = image[93:446, 132:485, :]
 
         # Extract the image ID from the image name
         image_id_str = image_name.split('#')[1].split('.')[0].strip()
@@ -155,7 +148,7 @@ transform = transforms.Compose([
 ])
 
 image_folders = [
-    "/home/alanjiach/.ros/session_0/",
+    "/home/ac913/PycharmProjects/appChallenge/unlabeled_data",
 ]
 
 
@@ -163,8 +156,7 @@ image_folders = [
 def create_label_files(image_folders):
     label_files = []
     for image_path in image_folders:
-        label_files.append(
-            os.path.join("/home/alanjiach/Desktop", f"keyframes_" + image_path.split("_")[-1].split("/")[0] + ".txt"))
+        label_files.append(os.path.join("/home/ac913/Python", f"keyframes_" + image_path.split("_")[-1].split("/")[0] + ".txt"))
     return label_files
 
 
@@ -210,7 +202,7 @@ for epoch in range(num_epochs):
 
         hand_presence_losses.append(hand_presence_loss.item())
 
-        if epoch % 3 == 0:
+        if epoch % 5 == 0:
             epochs = range(1, len(hand_presence_losses) + 1)
             plt.figure(figsize=(10, 6))
             plt.plot(epochs, hand_presence_losses, label="Hand Presence Loss")
@@ -242,7 +234,7 @@ for epoch in range(num_epochs):
 
 
 test_image_folders = [
-    "/home/alanjiach/.ros/session_0/",
+    "/home/ac913/PycharmProjects/appChallenge/",
 ]
 
 test_combined_label_files = create_label_files(test_image_folders)
