@@ -148,7 +148,7 @@ transform = transforms.Compose([
 ])
 
 image_folders = [
-    "/home/ac913/PycharmProjects/appChallenge/unlabeled_data",
+    "/home/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_0",
 ]
 
 
@@ -156,7 +156,7 @@ image_folders = [
 def create_label_files(image_folders):
     label_files = []
     for image_path in image_folders:
-        label_files.append(os.path.join("/home/ac913/Python", f"keyframes_" + image_path.split("_")[-1].split("/")[0] + ".txt"))
+        label_files.append(os.path.join("C:/Users/ac913/PycharmProjects/appChallenge/labeled_data/", image_path.split("_")[-1] + ".txt"))
     return label_files
 
 

@@ -45,21 +45,6 @@ def process_and_detect_posture(image, idx):
         shoulder_hip_angle_degrees = calculate_angle(right_shoulder_x, right_shoulder_y, hip_x, hip_y,
                                                      left_shoulder_x, left_shoulder_y)
 
-        # Define threshold angles to determine posture
-        upright_threshold = 10  # Angle tolerance for upright posture
-        hunch_in_threshold = 20  # Angle threshold for hunched in posture
-        hunch_over_threshold = 45  # Angle threshold for hunched over posture
-
-        # Check the posture based on the shoulder-hip angle
-        # if abs(shoulder_hip_angle_degrees) < upright_threshold:
-        #     posture_message = "Good Posture!"
-        # elif abs(shoulder_hip_angle_degrees) < hunch_in_threshold:
-        #     posture_message = "Hunched In Posture!"
-        # else:
-        #     posture_message = "Hunched Over Posture!"
-
-        # print(posture_message)
-
         # Draw pose landmarks (optional)
         annotated_image = image.copy()
         mp_drawing.draw_landmarks(
@@ -68,7 +53,7 @@ def process_and_detect_posture(image, idx):
             mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
         cv2.imshow('Upper Body Pose Landmarks', annotated_image)
-        cv2.imwrite("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/Frame_" + str(idx) + ".jpg",
+        cv2.imwrite("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_" + str(m) + "/Frame_" + str(idx//25) + ".jpg",
                     annotated_image)
 
 
@@ -81,9 +66,14 @@ cap = cv2.VideoCapture(0)  # Use the correct device index (0 or 1) for your Logi
 import os
 
 index = 0
-if os.path.exists("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data"):
-    for file in os.listdir('C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data'): os.remove(
-        "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/" + file)
+m = 0
+if os.path.exists("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_" + str(m)):
+    if input("File Already Exists, Delete (Y/N) ") == "Y": exit()
+
+    for file in os.listdir('C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_' + str(m)):
+        os.remove("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_" + str(m) + "/" + file)
+else:
+    os.mkdir("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_" + str(m))
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -91,7 +81,8 @@ while cap.isOpened():
         break
 
     # Process, detect posture, and display upper body pose landmarks
-    process_and_detect_posture(frame, index)
+    if index % 25 == 0:
+        process_and_detect_posture(frame, index)
     index += 1
     # Wait for 1ms and check if 'q' key is pressed to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
