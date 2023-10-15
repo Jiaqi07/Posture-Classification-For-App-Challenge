@@ -174,8 +174,8 @@ optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 num_epochs = 20
 
-model_filename = f"model_8689.pth"
-torch.save(model.state_dict(), "C:/Users/ac913/PycharmProjects/appChallenge/models/" + model_filename)
+# model_filename = f"model_8689.pth"
+# torch.save(model.state_dict(), "C:/Users/ac913/PycharmProjects/appChallenge/models/" + model_filename)
 
 test_image_folders = [
     # "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_4",
@@ -190,7 +190,7 @@ test_dataset = CustomDataset(test_image_folders, test_combined_label_files, tran
 # Create DataLoader for testing dataset
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_15.pth"))
+model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_7718.pth"))
 model.eval()
 
 total_accuracy_hand_presence = 0.0

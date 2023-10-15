@@ -121,7 +121,7 @@ index = 0
 # Initialize the list to store landmark coordinates
 landmark_coordinates_list = []
 
-model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_15.pth"))
+model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/initial.pth"))
 model.eval()
 
 prev_posture = None

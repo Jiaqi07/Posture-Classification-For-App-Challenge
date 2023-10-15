@@ -12,6 +12,7 @@ import torch.nn.init as init
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 # print(device)
 class CNNModel(nn.Module):
     def __init__(self):
@@ -34,7 +35,7 @@ class CNNModel(nn.Module):
             # nn.MaxPool2d(kernel_size=2, stride=2),
         )
         # self.fc_layers = nn.Sequential(
-        #     nn.Linear(64 * (353 // 8) * (353 // 8), 128),
+        #     nn.Linear(64 * (640 // 8) * (480 // 8), 128),
         #     nn.ReLU(inplace=True),
         #     nn.Linear(128, 64),
         #     nn.ReLU(inplace=True),
@@ -92,7 +93,9 @@ class CustomDataset(Dataset):
         for folder in image_folders:
             image_names = os.listdir(folder)
             for image_path in image_names:
-                self.image_paths.append("C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/" + folder.split("/")[-1] + "/Frame_" + image_path.split("_")[-1])
+                self.image_paths.append(
+                    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/" + folder.split("/")[-1] + "/Frame_" +
+                    image_path.split("_")[-1])
 
     def __len__(self):
         return len(self.image_paths)
@@ -166,7 +169,8 @@ image_folders = [
 def create_label_files(image_folders):
     label_files = []
     for image_path in image_folders:
-        label_files.append(os.path.join("C:/Users/ac913/PycharmProjects/appChallenge/labeled_data/", image_path.split("_")[-1] + ".txt"))
+        label_files.append(os.path.join("C:/Users/ac913/PycharmProjects/appChallenge/labeled_data/",
+                                        image_path.split("_")[-1] + ".txt"))
     return label_files
 
 
@@ -185,7 +189,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.01)
 num_epochs = 20
 
 hand_presence_losses = []
-model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_15.pth"))
+model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_7718.pth"))
 model.train()  # Set the model to training mode
 for epoch in range(num_epochs):
     # Get the current date and time
