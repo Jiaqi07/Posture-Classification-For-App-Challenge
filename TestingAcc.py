@@ -1,3 +1,4 @@
+import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -35,7 +36,7 @@ class CNNModel(nn.Module):
             # nn.MaxPool2d(kernel_size=2, stride=2),
         )
         # self.fc_layers = nn.Sequential(
-        #     nn.Linear(64 * (640 // 8) * (480 // 8), 128),
+        #     nn.Linear(64 * (353 // 8) * (353 // 8), 128),
         #     nn.ReLU(inplace=True),
         #     nn.Linear(128, 64),
         #     nn.ReLU(inplace=True),
@@ -152,18 +153,6 @@ transform = transforms.Compose([
     # Add other transformations as needed (e.g., normalization)
 ])
 
-image_folders = [
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_0",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_1",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_2",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_3",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_4",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_5",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_6",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_7",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_8",
-]
-
 
 # Create the label files for all the session folders
 def create_label_files(image_folders):
@@ -174,10 +163,7 @@ def create_label_files(image_folders):
     return label_files
 
 
-combined_label_files = create_label_files(image_folders)
-train_dataset = CustomDataset(image_folders, combined_label_files, transform=transform)
 batch_size = 256
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 model = CNNModel().to(device)  # Replace with your CNNModel initialization code
 
 # show_samples(train_dataset, num_samples=10)
@@ -188,72 +174,14 @@ optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 num_epochs = 20
 
-hand_presence_losses = []
-model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_7718.pth"))
-model.train()  # Set the model to training mode
-for epoch in range(num_epochs):
-    # Get the current date and time
-    # current_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    current_datetime = str(epoch)
-
-    total_accuracy_hand_presence = 0.0
-    threshold = 0.5
-    total_correct_hand_presence = 0
-    total_samples = 0
-
-    for batch_idx, (images, labels) in enumerate(train_loader):
-        hand_presence_labels = labels  # Use the first column in the labels as the hand presence label
-        hand_presence_labels = hand_presence_labels.float().to(device)
-
-        optimizer.zero_grad()
-        # Forward pass
-        out_hand_presence = model(images.to(device))
-
-        # Calculate the hand presence classification loss
-        hand_presence_loss = hand_presence_criterion(out_hand_presence.squeeze(), hand_presence_labels)
-        # Backpropagation and update weights
-        hand_presence_loss.backward()
-        optimizer.step()
-
-        hand_presence_losses.append(hand_presence_loss.item())
-
-        if epoch % 5 == 0:
-            epochs = range(1, len(hand_presence_losses) + 1)
-            plt.figure(figsize=(10, 6))
-            plt.plot(epochs, hand_presence_losses, label="Hand Presence Loss")
-            plt.xlabel('Epoch')
-            plt.ylabel('Loss')
-            plt.title('Training Losses')
-            plt.legend()
-            plt.grid(True)
-            # plt.show(block=False)
-            # plt.savefig(
-            #     "/home/alanjiach/catkin_ws/src/FANUC_Stream_Motion_Controller_CPP/ProbalisticCNN/TrainedModels/training_loss_" + str(
-            #         current_datetime) + ".png")
-
-            model_filename = f"model_{current_datetime}.pth"
-            torch.save(model.state_dict(), "C:/Users/ac913/PycharmProjects/appChallenge/models/" + model_filename)
-        print(batch_idx)
-
-        predicted_hand_presence = (out_hand_presence >= threshold).int()
-        # print(predicted_hand_presence)
-        # print(hand_presence_labels)
-
-        for i in range(predicted_hand_presence.shape[0]):
-            if (predicted_hand_presence[i] == hand_presence_labels[i]):
-                total_correct_hand_presence += 1
-            total_samples += 1
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {hand_presence_loss.item():.4f}, Time: {current_datetime}")
-    print(f"Training Accuracy: {total_correct_hand_presence / total_samples}")
-
-model_filename = f"model_final.pth"
-torch.save(model.state_dict(), "C:/Users/ac913/PycharmProjects/appChallenge/models/" + model_filename)
+# model_filename = f"model_8689.pth"
+# torch.save(model.state_dict(), "C:/Users/ac913/PycharmProjects/appChallenge/models/" + model_filename)
 
 test_image_folders = [
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_4",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_5",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_6",
-    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_7",
+    # "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_4",
+    # "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_5",
+    # "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_6",
+    "C:/Users/ac913/PycharmProjects/appChallenge/unlabeled_data/folder_8",
 ]
 
 test_combined_label_files = create_label_files(test_image_folders)
@@ -262,11 +190,13 @@ test_dataset = CustomDataset(test_image_folders, test_combined_label_files, tran
 # Create DataLoader for testing dataset
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-# model.load_state_dict(torch.load("/home/alanjiach/catkin_ws/src/FANUC_Stream_Motion_Controller_CPP/ProbalisticCNN/TrainedModels/model_2023-08-07 18:06:31.pth"))
+model.load_state_dict(torch.load("C:/Users/ac913/PycharmProjects/appChallenge/models/model_7718.pth"))
 model.eval()
 
 total_accuracy_hand_presence = 0.0
 num_batches = 0
+
+errors = []
 
 with torch.no_grad():
     threshold = 0.5
@@ -280,23 +210,25 @@ with torch.no_grad():
         # Forward pass
         out_hand_presence = model(images.to(device))
         predicted_hand_presence = (out_hand_presence >= threshold).int()
-        # print(predicted_hand_presence)
-        # print(hand_presence_labels)
 
         for i in range(predicted_hand_presence.shape[0]):
-            if (predicted_hand_presence[i] == hand_presence_labels[i]):
+            if predicted_hand_presence[i] == hand_presence_labels[i]:
                 total_correct_hand_presence += 1
+            else:
+                errors.append((images[i], labels[i], predicted_hand_presence[i]))
             total_samples += 1
-        # correct_hand_presence = (predicted_hand_presence == hand_presence_labels).int().sum()
-        # total_correct_hand_presence += c/orrect_hand_presence.item()
-        # total_samples += labels.size(0)
         num_batches += 1
 
-        # Accumulate loss for evaluation
-        # total_accuracy_hand_presence += hand_presence_loss.item()
 print(total_correct_hand_presence, total_samples)
-# average_accuracy_hand_presence = total_accuracy_hand_presence / num_batches
 accuracy_hand_presence = total_correct_hand_presence / total_samples
 
-# print(f"Testing Loss Hand Presence (BCELoss): {average_accuracy_hand_presence:.4f}")
 print(f"Accuracy Hand Presence: {accuracy_hand_presence:.4f}")
+
+for img, actual, pred in errors:
+    img_np = img.numpy()  # Convert tensor to NumPy array
+    img_rgb = np.transpose(img_np, (1, 2, 0))  # Convert from (C, H, W) to (H, W, C)
+    cv2.imshow(f"Actual Label is: {actual.item()}!", img_rgb)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+cv2.destroyAllWindows()  # Make sure to close any open windows
