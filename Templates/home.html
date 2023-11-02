@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Posture Checker App</title>
+    <style>
+        /* Add your CSS styles here */
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh; /* Adjust this value as needed */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Posture Checker</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Download</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="hero">
+            <h1>Improve Your Posture</h1>
+            <p>Try our posture detection app.</p>
+            <a href="#" class="cta-button" id="get-started-button">Get Started</a>
+        </div>
+    </header>
+
+    <div id="camera-feed-container" style="display: none; text-align: center;">
+        <!-- Display the camera feed with landmarks -->
+        <img id="camera-feed" src="" alt="Camera Stream" style="max-width: 100%; display: inline-block;">
+    </div>
+
+    <div id="camera-output" style="display: none;">
+        <h2>Camera Output:</h2>
+        <p>Posture: <span id="posture-text">Loading...</span></p>
+    </div>
+
+    <!-- Add any other content or sections here -->
+
+    <footer>
+        <!-- Your footer content here -->
+    </footer>
+
+    <script>
+        // Function to update the posture
+        function updatePosture() {
+            fetch("{{ url_for('get_posture') }}")
+                .then(response => response.json())
+                .then(data => {
+                    var postureDisplay = document.getElementById('posture-text');
+                    postureDisplay.textContent = data.posture;
+                });
+        }
+
+        // Add a click event listener to the "Get Started" button
+        document.getElementById('get-started-button').addEventListener('click', function (e) {
+            e.preventDefault();
+            // Hide the button
+            this.style.display = 'none';
+
+            // Show the camera feed container
+            document.getElementById('camera-feed-container').style.display = 'block';
+
+            // Show the camera output
+            document.getElementById('camera-output').style.display = 'block';
+
+            // Set the source of the camera feed
+            document.getElementById('camera-feed').src = "{{ url_for('camera_feed') }}";
+
+            // Initially update the posture
+            updatePosture();
+
+            // Periodically update the posture
+            setInterval(updatePosture, 1000); // Adjust the interval as needed (e.g., every 1 second)
+        });
+    </script>
+
+
+</body>
+</html>
+
